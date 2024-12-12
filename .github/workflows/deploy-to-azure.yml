@@ -41,6 +41,7 @@ jobs:
             --location "eastus" \
             --name "$DEPLOYMENT_STACK_NAME" \
             --template-file "${{ github.workspace }}/bicep/main.bicep" \
+            --parameters fabricAdminEmail="${{ secrets.FABRIC_ADMIN_EMAIL }}" \
             --yes
 
           # Pass deployment stack name to output

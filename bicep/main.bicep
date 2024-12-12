@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-param adminEmail string
+param fabricAdminEmail string
 
 var location = 'eastus'
 var prefix = 'fabric-post'
@@ -42,7 +42,7 @@ module fabricDeployment 'br/public:avm/res/fabric/capacity:0.1.0' = {
     name: fabricCapacityName
     location: location
     skuName: 'F2'
-    adminMembers: [adminEmail]
+    adminMembers: [fabricAdminEmail]
   }
 }
 
