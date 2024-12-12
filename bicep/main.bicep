@@ -38,6 +38,7 @@ resource storageBlobDataOwnerRoleDefinition 'Microsoft.Authorization/roleDefinit
 module fabricDeployment 'br/public:avm/res/fabric/capacity:0.1.0' = {
   scope: resourceGroup(resourceGroupName)
   name: 'fabric-deployment'
+  dependsOn: [resourceGroupDeployment]
   params: {
     name: fabricCapacityName
     location: location
@@ -49,6 +50,7 @@ module fabricDeployment 'br/public:avm/res/fabric/capacity:0.1.0' = {
 module logAnalyticsWorkspaceDeployment 'br/public:avm/res/operational-insights/workspace:0.9.0' = {
   scope: resourceGroup(resourceGroupName)
   name: 'log-analytics-workspace-deployment'
+  dependsOn: [resourceGroupDeployment]
   params: {
     name: logAnalyticsWorkspaceName
     location: location
@@ -178,6 +180,7 @@ module storageAccountDeployment 'br/public:avm/res/storage/storage-account:0.14.
 
 module appServicePlanDeployment 'br/public:avm/res/web/serverfarm:0.3.0' = {
   scope: resourceGroup(resourceGroupName)
+  dependsOn: [resourceGroupDeployment]
   name: 'app-service-plan-deployment'
   params: {
     name: appServicePlanName
