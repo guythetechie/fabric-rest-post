@@ -34,6 +34,9 @@ jobs:
 
           DEPLOYMENT_STACK_NAME="fabric-rest-post"
 
+          echo "Registering resource providers..."
+          az provider register --namespace "Microsoft.PowerPlatform"
+
           echo "Creating deployment stack..."
           az stack sub create \
             --action-on-unmanage "DeleteAll" \
