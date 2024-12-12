@@ -227,6 +227,7 @@ module functionAppDeployment 'br/public:avm/res/web/site:0.10.0' = {
         ]
       }
     }
+    publicNetworkAccess: 'Enabled'
     privateEndpoints: [
       {
         name: '${functionAppName}-blob-pep'
