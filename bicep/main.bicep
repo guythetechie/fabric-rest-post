@@ -244,7 +244,6 @@ module functionAppDeployment 'br/public:avm/res/web/site:0.10.0' = {
         }
       }
     ]
-    publicNetworkAccess: 'Disabled'
     vnetRouteAllEnabled: false
     vnetContentShareEnabled: true
     vnetImagePullEnabled: true
