@@ -107,6 +107,20 @@ module storageBlobPrivateDnsZone 'br/public:avm/res/network/private-dns-zone:0.6
   }
 }
 
+module websitesPrivateDnsZone 'br/public:avm/res/network/private-dns-zone:0.6.0' = {
+  scope: resourceGroup(resourceGroupName)
+  name: 'web-sites-private-dns-zone-deployment'
+  params: {
+    name: 'privatelink.azurewebsites.net'
+    location: 'global'
+    virtualNetworkLinks: [
+      {
+        virtualNetworkResourceId: virtualNetworkDeployment.outputs.resourceId
+      }
+    ]
+  }
+}
+
 module storageAccountDeployment 'br/public:avm/res/storage/storage-account:0.14.3' = {
   scope: resourceGroup(resourceGroupName)
   name: 'storage-account-deployment'
@@ -210,6 +224,24 @@ module functionAppDeployment 'br/public:avm/res/web/site:0.10.0' = {
         ]
       }
     }
+    privateEndpoints: [
+      {
+        name: '${functionAppName}-blob-pep'
+        customNetworkInterfaceName: '${functionAppName}-blob-nic'
+        service: 'sites'
+        subnetResourceId: privateLinkSubnetResourceId
+        privateDnsZoneGroup: {
+          name: functionAppName
+          privateDnsZoneGroupConfigs: [
+            {
+              name: websitesPrivateDnsZone.outputs.name
+              privateDnsZoneResourceId: websitesPrivateDnsZone.outputs.resourceId
+            }
+          ]
+        }
+      }
+    ]
+    publicNetworkAccess: 'Disabled'
     vnetRouteAllEnabled: false
     vnetContentShareEnabled: true
     vnetImagePullEnabled: true
