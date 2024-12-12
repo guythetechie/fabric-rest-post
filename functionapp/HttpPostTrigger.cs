@@ -1,17 +1,33 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Collections.Frozen;
 using System;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace functionapp;
 
-public static class HttpPostTrigger
+public class HttpPostTrigger(ILogger<HttpPostTrigger> logger)
 {
     [Function("HttpPostTrigger")]
-    public static IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest request)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await HandleRequest(request, cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            logger.LogCritical(exception, exception.Message);
+            throw;
+        }
+    }
+
+    private static async ValueTask<IActionResult> HandleRequest(HttpRequest request, CancellationToken cancellationToken)
     {
         var responseJson = new JsonObject
         {
@@ -23,7 +39,7 @@ public static class HttpPostTrigger
             responseJson[header.Key] = header.Value.ToString();
         }
 
-        if (request.TryGetContent(out var content))
+        if (await request.TryGetContent(cancellationToken) is JsonNode content)
         {
             responseJson["content"] = content;
         }
@@ -38,21 +54,22 @@ file static class HttpRequestModule
     {
         var dictionary = request?.Headers ?? new HeaderDictionary();
 
-        return dictionary.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString(), StringComparer.OrdinalIgnoreCase); 
+        return dictionary.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString(), StringComparer.OrdinalIgnoreCase);
     }
 
-    public static bool TryGetContent(this HttpRequest request, out JsonNode? content)
+    public static async ValueTask<JsonNode?> TryGetContent(this HttpRequest? request, CancellationToken cancellationToken)
     {
         try
         {
-            content = JsonNode.Parse(request.Body);
-
-            return content is not null;
+            return request?.Body switch
+            {
+                null => null,
+                var body => await JsonNode.ParseAsync(body, cancellationToken: cancellationToken)
+            };
         }
         catch (JsonException)
         {
-            content = null;
-            return false;
+            return null;
         }
     }
 }

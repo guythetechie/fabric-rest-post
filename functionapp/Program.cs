@@ -15,6 +15,7 @@ await builder.Build().RunAsync();
 static void ConfigureBuilder(FunctionsApplicationBuilder builder)
 {
     ConfigureTelemetry(builder);
+    builder.ConfigureFunctionsWebApplication();
 }
 
 static void ConfigureTelemetry(FunctionsApplicationBuilder builder)
